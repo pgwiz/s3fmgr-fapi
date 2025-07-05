@@ -1,0 +1,20 @@
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-settings
+python-dotenv
+bcrypt==3.2.2
+# Database dependencies
+sqlalchemy
+psycopg2-binary
+
+# Security dependencies
+passlib[bcrypt]
+python-jose[cryptography] # For JWTs
+pydantic[email]
+
+# For file uploads (form data)
+python-multipart
+
+# For S3
+boto3

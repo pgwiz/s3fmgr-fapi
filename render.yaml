@@ -1,0 +1,76 @@
+services:
+  # A PostgreSQL database for your application
+  - type: psql
+    name: file-server-db
+    plan: free # You can change this to a paid plan for production
+    # Render will automatically set the DATABASE_URL environment variable
+    # in the services that connect to this database.
+
+  # The main web service for your FastAPI application
+  - type: web
+    name: file-server-api
+    runtime: python
+    plan: free # You can change this to a paid plan for production
+    buildCommand: "./build.sh"
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: file-server-db
+          property: connectionString
+      - key: PYTHON_VERSION
+        value: 3.11.0 # Specify a Python version
+      - key: SECRET_KEY
+        generateValue: true # Let Render generate a secure secret key
+      - key: STORAGE_TYPE
+        value: s3 # Set to 's3' to use your Scaleway bucket
+      # --- IMPORTANT ---
+      # Add the following S3 variables as 'Secret Files' or environment
+      # variables in the Render dashboard. Do not commit them here.
+      - key: S3_ENDPOINT_URL
+        value: https://s3.fr-par.scw.cloud
+      - key: S3_BUCKET_NAME
+        value: storafe1 # Your Scaleway bucket name
+      - key: S3_REGION
+        value: fr-par
+      - key: S3_ACCESS_KEY_ID
+        sync: false # This should be a secret
+      - key: S3_SECRET_ACCESS_KEY
+        sync: false # This should be a secret
+
+  # --- Future Use: Celery/Redis Services (Uncomment when ready) ---
+
+  # - type: redis
+  #   name: file-server-redis
+  #   plan: free
+
+  # - type: worker
+  #   name: file-server-worker
+  #   runtime: python
+  #   plan: free
+  #   buildCommand: "pip install -r requirements.txt"
+  #   startCommand: "celery -A app.core.celery_app worker --loglevel=info"
+  #   envVars:
+  #     - key: DATABASE_URL
+  #       fromDatabase:
+  #         name: file-server-db
+  #         property: connectionString
+  #     - key: CELERY_BROKER_URL
+  #       fromService:
+  #         type: redis
+  #         name: file-server-redis
+  #         property: connectionString
+  #     - key: CELERY_RESULT_BACKEND
+  #       fromService:
+  #         type: redis
+  #         name: file-server-redis
+  #         property: connectionString
+  #     - key: PYTHON_VERSION
+  #       value: 3.11.0
+  #     - key: SECRET_KEY
+  #       fromService:
+  #         type: web
+  #         name: file-server-api
+  #         envVarKey: SECRET_KEY
+  #     # Add your S3 secrets here as well

@@ -1,0 +1,9 @@
+.env
+test/
+*.env
+*.env.*
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.apif/
