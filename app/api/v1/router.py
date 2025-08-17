@@ -10,6 +10,7 @@ api_router.include_router(health.router, prefix="/health", tags=["Health"])
 api_router.include_router(auth.router, prefix="/auth", tags=["Authentication"]) # auth router
 api_router.include_router(users.router, prefix="/users", tags=["Users"]) # users router
 api_router.include_router(folders.router, prefix="/folders", tags=["Folders"]) # Folders router
+api_router.include_router(public.router, prefix="/public", tags=["Public"]) # public router
 api_router.include_router(files.router, prefix="/files", tags=["Files"]) # Files router
 api_router.include_router(bulk.router, prefix="/bulk", tags=["Bulk Operations"]) # Bulk router
 api_router.include_router(browse.router, prefix="/browse", tags=["Browse"]) # Browse router

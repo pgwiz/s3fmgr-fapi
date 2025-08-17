@@ -283,3 +283,35 @@ def share_file(
         raise HTTPException(status_code=400, detail="Could not grant permission. Ensure user exists and is not yourself.")
         
     return permission
+
+@router.post("/{file_id}/publish", status_code=status.HTTP_200_OK)
+def make_file_public(
+    *,
+    db: Session = Depends(get_db),
+    file_id: uuid.UUID,
+    current_user: UserModel = Depends(deps.get_current_user),
+    storage_service: BaseStorageService = Depends(get_storage_service)
+):
+    """
+    Makes a file permanently public. Only available to authorized users.
+    """
+    # 1. Check if user is in the allowed list from config
+    if current_user.email.lower() not in settings.PUBLIC_SHARING_USER_LIST:
+        raise HTTPException(status_code=403, detail="You do not have permission to make files public.")
+
+    # 2. Verify user owns the file
+    db_file = crud_file.get_file(db, file_id=file_id, owner_id=current_user.id)
+    if not db_file:
+        raise HTTPException(status_code=404, detail="File not found or you are not the owner.")
+
+    try:
+        # 3. Set the file to public-read in the S3 bucket
+        storage_service.make_public(file_path=db_file.file_path)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Could not update file permissions in storage: {e}")
+
+    # 4. Update the is_public flag in the database
+    crud_file.set_public_status(db, db_file=db_file, is_public=True)
+
+    public_url = storage_service.get_public_url(file_path=db_file.file_path)
+    return {"message": "File is now public.", "public_url": public_url}

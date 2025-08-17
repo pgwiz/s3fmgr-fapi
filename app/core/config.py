@@ -22,6 +22,15 @@ class Settings(BaseSettings):
     S3_SECRET_ACCESS_KEY: str = os.getenv("S3_SECRET_ACCESS_KEY", "S3_SECRET_ACCESS_KEY")
     S3_BUCKET_NAME: str = os.getenv("S3_BUCKET_NAME", "storafe1")
     S3_REGION: str = os.getenv("S3_REGION", "fr-par")
+    PUBLIC_SHARING_ALLOWED_USERS: str = os.getenv("PUBLIC_SHARING_ALLOWED_USERS", "")
+
+    @property
+    def PUBLIC_SHARING_USER_LIST(self) -> list[str]:
+        """Returns the allowed users as a list of emails."""
+        if not self.PUBLIC_SHARING_ALLOWED_USERS:
+            return []
+        return [email.strip() for email in self.PUBLIC_SHARING_ALLOWED_USERS.split(',')]
+
 
     class Config:
         env_file = ".env"

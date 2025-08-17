@@ -8,6 +8,14 @@ from app.schemas.file import FileCreate, FileUpdate, FileMove
 from pathlib import Path
 
 
+def set_public_status(db: Session, *, db_file: File, is_public: bool) -> File:
+    """Updates the public status of a file in the database."""
+    db_file.is_public = is_public
+    db.add(db_file)
+    db.commit()
+    db.refresh(db_file)
+    return db_file
+
 def get_file_by_id(db: Session, *, file_id: UUID) -> File | None:
     """
     Fetches a file by its ID, without checking for ownership.

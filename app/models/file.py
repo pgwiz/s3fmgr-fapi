@@ -23,6 +23,7 @@ class File(Base):
     compression_ratio = Column(Float, nullable=True)
     thumbnail_path = Column(Text, nullable=True)
     virus_scan_status = Column(String(50), default='pending')
+    is_public = Column(Boolean, default=False, nullable=False, server_default='f')
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
     deleted_at = Column(TIMESTAMP(timezone=True), nullable=True)

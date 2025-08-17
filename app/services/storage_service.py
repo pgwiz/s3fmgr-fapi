@@ -26,6 +26,13 @@ class BaseStorageService:
     def delete(self, file_path: str):
         """Deletes a file."""
         raise NotImplementedError
+    def make_public(self, file_path: str):
+        """Makes a stored object publicly readable."""
+        raise NotImplementedError
+
+    def get_public_url(self, file_path: str) -> str:
+        """Constructs the permanent public URL for an object."""
+        raise NotImplementedError
 
 class LocalStorageService(BaseStorageService):
     def __init__(self):
@@ -66,6 +73,15 @@ class LocalStorageService(BaseStorageService):
                 os.remove(file_path)
         except Exception as e:
             print(f"Error deleting local file: {e}")
+     def make_public(self, file_path: str):
+        # Local files are not made public over the internet by this service.
+        # This would require a web server configuration.
+        print("Warning: 'make_public' is not applicable for local storage.")
+        pass
+
+    def get_public_url(self, file_path: str) -> str:
+        # No permanent public URL for local files through this service.
+        return None
 
 class S3StorageService(BaseStorageService):
     def __init__(self):
@@ -107,6 +123,17 @@ class S3StorageService(BaseStorageService):
             self.s3_client.delete_object(Bucket=self.bucket_name, Key=file_path)
         except ClientError as e:
             print(f"Error deleting S3 object: {e}")
+    def make_public(self, file_path: str):
+        """Sets the Access Control List (ACL) of an S3 object to 'public-read'."""
+        try:
+            self.s3_client.put_object_acl(Bucket=self.bucket_name, Key=file_path, ACL='public-read')
+        except ClientError as e:
+            print(f"Error setting public ACL: {e}")
+            raise # Re-raise the exception to be handled by the endpoint
+
+    def get_public_url(self, file_path: str) -> str:
+        """Constructs the permanent public URL for an S3 object."""
+        return f"{self.s3_client.meta.endpoint_url}/{self.bucket_name}/{file_path}"
 
 def get_storage_service() -> BaseStorageService:
     if settings.STORAGE_TYPE == 's3':
