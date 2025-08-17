@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import health, auth, users, folders, files, bulk, browse
+from app.api.v1.endpoints import health, auth, users, folders, files, bulk, browse, public 
 
 
 # Master router for the v1 API
