@@ -7,12 +7,14 @@ import secrets
 from app.models.upload_session import UploadSession
 from app.models.user import User
 
-TEMP_STORAGE_PATH = Path("./storage/temp")
+# Define the path for temporary storage
+TEMP_STORAGE_PATH = Path.cwd() / "storage" / "temp"
 
 def create_session(db: Session, *, filename: str, total_size: int, owner: User) -> UploadSession:
     """
     Creates a new upload session.
     """
+    # --- FIX: Ensure the temporary storage directory exists ---
     TEMP_STORAGE_PATH.mkdir(parents=True, exist_ok=True)
     
     session_token = secrets.token_urlsafe(32)
