@@ -73,9 +73,9 @@ class LocalStorageService(BaseStorageService):
                 os.remove(file_path)
         except Exception as e:
             print(f"Error deleting local file: {e}")
-     def make_public(self, file_path: str):
-        # Local files are not made public over the internet by this service.
-        # This would require a web server configuration.
+    def make_public(self, file_path: str):
+    # Local files are not made public over the internet by this service.
+    # This would require a web server configuration.
         print("Warning: 'make_public' is not applicable for local storage.")
         pass
 
